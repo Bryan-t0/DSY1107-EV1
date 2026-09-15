@@ -9,6 +9,10 @@ data "aws_subnets" "default" {
   }
 }
 
+data "aws_iam_role" "lab_role" {
+  name = "LabRole"
+}
+
 resource "aws_ecr_repository" "backend" {
   name         = "${var.project_name}-backend"
   force_delete = true
@@ -21,26 +25,6 @@ resource "aws_ecs_cluster" "main" {
 resource "aws_cloudwatch_log_group" "backend" {
   name              = "/ecs/${var.project_name}"
   retention_in_days = 7
-}
-
-resource "aws_iam_role" "ecs_execution" {
-  name = "${var.project_name}-ecs-execution"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-      Action = "sts:AssumeRole"
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_execution" {
-  role       = aws_iam_role.ecs_execution.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 resource "aws_security_group" "backend" {
@@ -68,7 +52,8 @@ resource "aws_ecs_task_definition" "backend" {
   network_mode             = "awsvpc"
   cpu                      = "256"
   memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecs_execution.arn
+  execution_role_arn       = data.aws_iam_role.lab_role.arn
+  task_role_arn            = data.aws_iam_role.lab_role.arn
 
   runtime_platform {
     operating_system_family = "LINUX"
