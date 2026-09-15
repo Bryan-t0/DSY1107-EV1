@@ -10,7 +10,7 @@ variable "project_name" {
 
 variable "cognito_domain_prefix" {
   type    = string
-  default = "dsy1107-grupoxx-001"
+  default = "dsy1107-bryant-001"
 }
 
 variable "frontend_callback_url" {
