@@ -1,8 +1,10 @@
-@"
 .terraform/
 *.tfstate
 *.tfstate.backup
-frontend-cognito/node_modules/
-frontend-cognito/dist/
+*.tfvars
 .env
-"@ | Out-File -Encoding utf8 .gitignore
+frontend/node_modules/
+frontend/dist/
+frontend/public/config.json
+backend/target/
+.DS_Store
