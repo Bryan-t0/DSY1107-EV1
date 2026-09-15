@@ -1,10 +1,17 @@
 package cl.duoc.pedidos360.security;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -13,28 +20,76 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
-  @Value("${app.jwt.issuer}") private String issuer;
-  @Value("${app.jwt.client-id}") private String clientId;
+
+  @Value("${app.jwt.issuer}")
+  private String issuer;
+
+  @Value("${app.jwt.client-id}")
+  private String clientId;
 
   @Bean
   SecurityFilterChain security(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable())
-      .authorizeHttpRequests(auth -> auth.requestMatchers("/actuator/health").permitAll().anyRequest().authenticated())
-      .oauth2ResourceServer(oauth -> oauth.jwt(jwt -> {}));
+    http
+      .csrf(csrf -> csrf.disable())
+      .authorizeHttpRequests(auth -> auth
+        .requestMatchers("/actuator/health").permitAll()
+        .requestMatchers("/datos").hasRole("APROBADOR")
+        .anyRequest().authenticated()
+      )
+      .oauth2ResourceServer(oauth -> oauth
+        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+      );
+
     return http.build();
+  }
+
+  @Bean
+  Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
+    JwtGrantedAuthoritiesConverter scopeConverter = new JwtGrantedAuthoritiesConverter();
+
+    return jwt -> {
+      Collection<GrantedAuthority> authorities = new ArrayList<>(scopeConverter.convert(jwt));
+
+      List<String> groups = jwt.getClaimAsStringList("cognito:groups");
+      if (groups != null) {
+        groups.forEach(group ->
+          authorities.add(new SimpleGrantedAuthority("ROLE_" + group))
+        );
+      }
+
+      return new JwtAuthenticationToken(jwt, authorities);
+    };
   }
 
   @Bean
   JwtDecoder jwtDecoder() {
     NimbusJwtDecoder decoder = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(issuer);
-    OAuth2TokenValidator<Jwt> defaults = JwtValidators.createDefaultWithIssuer(issuer);
-    OAuth2TokenValidator<Jwt> clientValidator = new JwtClaimValidator<>("client_id", claim -> clientId.equals(String.valueOf(claim)));
-    OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<List<String>>("aud", aud -> aud == null || aud.isEmpty() || aud.contains(clientId));
-    decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(defaults, clientValidator, audienceValidator));
+
+    OAuth2TokenValidator<Jwt> defaults =
+      JwtValidators.createDefaultWithIssuer(issuer);
+
+    OAuth2TokenValidator<Jwt> clientValidator =
+      new JwtClaimValidator<>("client_id",
+        claim -> clientId.equals(String.valueOf(claim)));
+
+    OAuth2TokenValidator<Jwt> audienceValidator =
+      new JwtClaimValidator<List<String>>("aud",
+        aud -> aud == null || aud.isEmpty() || aud.contains(clientId));
+
+    decoder.setJwtValidator(
+      new DelegatingOAuth2TokenValidator<>(
+        defaults,
+        clientValidator,
+        audienceValidator
+      )
+    );
+
     return decoder;
   }
 }

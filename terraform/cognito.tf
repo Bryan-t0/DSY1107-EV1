@@ -39,3 +39,17 @@ resource "aws_cognito_user_pool_client" "spa" {
     refresh_token = "days"
   }
 }
+
+resource "aws_cognito_user_group" "solicitante" {
+  name         = "SOLICITANTE"
+  user_pool_id = aws_cognito_user_pool.pool.id
+  description  = "Usuario que realiza solicitudes en Pedidos360"
+  precedence   = 20
+}
+
+resource "aws_cognito_user_group" "aprobador" {
+  name         = "APROBADOR"
+  user_pool_id = aws_cognito_user_pool.pool.id
+  description  = "Usuario con permisos de aprobacion en Pedidos360"
+  precedence   = 10
+}

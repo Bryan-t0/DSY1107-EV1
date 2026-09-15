@@ -2,11 +2,25 @@ output "cognito_user_pool_id" { value = aws_cognito_user_pool.pool.id }
 output "cognito_client_id" { value = aws_cognito_user_pool_client.spa.id }
 output "cognito_domain" { value = "https://${aws_cognito_user_pool_domain.hosted_ui.domain}.auth.${var.aws_region}.amazoncognito.com" }
 output "cognito_issuer" { value = "https://cognito-idp.${var.aws_region}.amazonaws.com/${aws_cognito_user_pool.pool.id}" }
+
 output "api_id" { value = aws_apigatewayv2_api.http.id }
 output "api_url" { value = "${aws_apigatewayv2_api.http.api_endpoint}/datos" }
 output "integration_id" { value = aws_apigatewayv2_integration.datos.id }
+
 output "ecr_repo" { value = aws_ecr_repository.backend.repository_url }
 output "ecs_cluster" { value = aws_ecs_cluster.main.name }
 output "ecs_service" { value = aws_ecs_service.backend.name }
+
 output "amplify_app_id" { value = aws_amplify_app.frontend.id }
 output "amplify_default_domain" { value = aws_amplify_app.frontend.default_domain }
+
+output "database_endpoint" {
+  value = aws_db_instance.pedidos360.address
+}
+
+output "cognito_groups" {
+  value = [
+    aws_cognito_user_group.solicitante.name,
+    aws_cognito_user_group.aprobador.name
+  ]
+}

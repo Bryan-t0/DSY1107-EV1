@@ -65,6 +65,7 @@ resource "aws_ecs_task_definition" "backend" {
       name      = "backend"
       image     = "${aws_ecr_repository.backend.repository_url}:latest"
       essential = true
+
       portMappings = [
         {
           containerPort = 8080
@@ -72,6 +73,7 @@ resource "aws_ecs_task_definition" "backend" {
           protocol      = "tcp"
         }
       ]
+
       environment = [
         {
           name  = "COGNITO_ISSUER"
@@ -80,10 +82,24 @@ resource "aws_ecs_task_definition" "backend" {
         {
           name  = "COGNITO_CLIENT_ID"
           value = aws_cognito_user_pool_client.spa.id
+        },
+        {
+          name  = "DB_URL"
+          value = "jdbc:mysql://${aws_db_instance.pedidos360.address}:3306/pedidos360?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+        },
+        {
+          name  = "DB_USERNAME"
+          value = aws_db_instance.pedidos360.username
+        },
+        {
+          name  = "DB_PASSWORD"
+          value = random_password.db.result
         }
       ]
+
       logConfiguration = {
         logDriver = "awslogs"
+
         options = {
           "awslogs-group"         = aws_cloudwatch_log_group.backend.name
           "awslogs-region"        = var.aws_region

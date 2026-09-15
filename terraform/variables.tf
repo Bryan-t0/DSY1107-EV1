@@ -20,6 +20,6 @@ variable "frontend_callback_url" {
 
 variable "backend_integration_uri" {
   type        = string
-  default     = "http://example.com:8080/datos"
-  description = "URI inicial del backend; el pipeline backend_deploy la reapunta a la task ECS."
+  default     = "http://44.204.91.141:8080/datos"
+  description = "URI actual del backend desplegado en ECS."
 }
