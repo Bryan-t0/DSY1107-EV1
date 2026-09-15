@@ -2,10 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 
 const localConfig = {
   region: import.meta.env.VITE_AWS_REGION || 'us-east-1',
-  cognitoDomain: import.meta.env.VITE_COGNITO_DOMAIN || 'https://dsy1107-grupoxx-001.auth.us-east-1.amazoncognito.com',
-  clientId: import.meta.env.VITE_COGNITO_CLIENT_ID || '7sd8t3kru1jqackf0mmfiunii9',
+  cognitoDomain: import.meta.env.VITE_COGNITO_DOMAIN || 'https://dsy1107-bryant-001.auth.us-east-1.amazoncognito.com',
+  clientId: import.meta.env.VITE_COGNITO_CLIENT_ID || '6t8gda2gsqh5h61jk5rgclc55s',
   redirectUri: import.meta.env.VITE_REDIRECT_URI || 'http://localhost:5173/',
-  apiUrl: import.meta.env.VITE_API_URL || 'https://mpva2w11r2.execute-api.us-east-1.amazonaws.com/Desarrollo/datos'
+  apiUrl: import.meta.env.VITE_API_URL || 'https://xxcvnolhf8.execute-api.us-east-1.amazonaws.com/datos'
 }
 
 const b64url = (bytes) => btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
