@@ -5,14 +5,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+// esta clase representa un pedido en la base de datos
 @Entity
 public class Pedido {
 
+  // identificador del pedido
   @Id
+  // el id se genera automaticamente
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   private String descripcion;
+  // todos los pedidos parten como pendientes
   private String estado = "PENDIENTE";
 
   public Pedido() {

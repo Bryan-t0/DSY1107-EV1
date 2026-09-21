@@ -18,16 +18,18 @@ function base64UrlEncode(buffer) {
     .replace(/=+$/, "");
 }
 
-
+// crea el challenge usando el verifier
 async function generateCodeChallenge(codeVerifier) {
   const encoder = new TextEncoder();
   const data = encoder.encode(codeVerifier);
 
+  // transforma el verifier para crear el challenge
   const digest = await crypto.subtle.digest("SHA-256", data);
 
   return base64UrlEncode(digest);
 }
 
+// genera el codigo original que usa PKCE
 function generateCodeVerifier() {
   const array = new Uint8Array(32);
 
@@ -60,26 +62,31 @@ function App() {
       exchangeCodeForToken(code);
     }
   }, []);
-  //aqui empieza el login
+
+  // aqui empieza el login
   const login = async () => {
     const codeVerifier = generateCodeVerifier();
 
     const codeChallenge = await generateCodeChallenge(codeVerifier);
 
+    // guardo el verifier para ocuparlo cuando vuelva de Cognito
     sessionStorage.setItem("code_verifier", codeVerifier);
 
     const loginUrl =
       `${COGNITO_DOMAIN}/login?` +
       `client_id=${CLIENT_ID}` +
+      // Cognito primero devuelve un codigo temporal
       `&response_type=code` +
       `&scope=openid+email+profile` +
       `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}` +
+      // le indico a Cognito que el challenge se hizo con SHA-256
       `&code_challenge_method=S256` +
       `&code_challenge=${codeChallenge}`;
 
     window.location.href = loginUrl;
   };
 
+  // cambia el codigo temporal por los tokens
   const exchangeCodeForToken = async (code) => {
     const codeVerifier = sessionStorage.getItem("code_verifier");
 
@@ -114,14 +121,13 @@ function App() {
 
         return;
       }
-     
-      //Guarda el token para entrar a la API
+
+      // token que voy a usar para entrar a la API
       sessionStorage.setItem("access_token", data.access_token);
-     
-      // Guarda el token con la información de identidad del usuario
+
+      // token que trae informacion del usuario
       sessionStorage.setItem("id_token", data.id_token);
-      
-      
+
       setAccessToken(data.access_token);
 
       setMessage("JWT obtenido correctamente.");
@@ -143,9 +149,10 @@ function App() {
       setApiData(null);
 
       const response = await fetch(API_URL, {
-        method: "GET",  
-        //Envío el access token para demostrar que ya inicié sesión
+        method: "GET",
+
         headers: {
+          // mando el access token para poder entrar a la API
           Authorization: accessToken,
         },
       });
@@ -172,6 +179,7 @@ function App() {
     }
   };
 
+  // borra la sesion y cierra sesion en Cognito
   const logout = () => {
     sessionStorage.clear();
 
@@ -234,7 +242,6 @@ function App() {
           )}
 
           <br />
-
           <br />
 
           <button onClick={logout}>

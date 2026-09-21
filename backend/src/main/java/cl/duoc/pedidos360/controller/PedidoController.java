@@ -18,38 +18,48 @@ public class PedidoController {
     this.pedidoRepository = pedidoRepository;
   }
 
+  // lista los pedidos
   @GetMapping
   public List<Pedido> listar() {
     return pedidoRepository.findAll();
   }
 
+  // crea un pedido nuevo
   @PostMapping
+  // estos dos roles pueden crear pedidos
   @PreAuthorize("hasAnyRole('SOLICITANTE','APROBADOR')")
   public Pedido crear(@RequestBody Map<String, String> body) {
     String descripcion = body.getOrDefault("descripcion", "").trim();
     if (descripcion.isBlank()) {
       throw new IllegalArgumentException("La descripcion es obligatoria");
     }
+    // guarda el pedido en la base de datos
     return pedidoRepository.save(new Pedido(descripcion));
   }
 
+  // ruta para aprobar un pedido
   @PutMapping("/{id}/aprobar")
+  // solo el aprobador puede hacer esta accion
   @PreAuthorize("hasRole('APROBADOR')")
   public ResponseEntity<Pedido> aprobar(@PathVariable Long id) {
     return pedidoRepository.findById(id)
       .map(pedido -> {
         pedido.setEstado("APROBADO");
+        // guarda el cambio en la base de datos
         return ResponseEntity.ok(pedidoRepository.save(pedido));
       })
       .orElse(ResponseEntity.notFound().build());
   }
 
+  // ruta para rechazar un pedido
   @PutMapping("/{id}/rechazar")
+  // solo el aprobador puede hacer esta accion
   @PreAuthorize("hasRole('APROBADOR')")
   public ResponseEntity<Pedido> rechazar(@PathVariable Long id) {
     return pedidoRepository.findById(id)
       .map(pedido -> {
         pedido.setEstado("RECHAZADO");
+        // guarda el cambio en la base de datos
         return ResponseEntity.ok(pedidoRepository.save(pedido));
       })
       .orElse(ResponseEntity.notFound().build());

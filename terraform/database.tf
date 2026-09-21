@@ -16,6 +16,7 @@ resource "aws_security_group" "database" {
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
+    // solo el backend puede conectarse a la base
     security_groups = [aws_security_group.backend.id]
   }
 
@@ -27,8 +28,10 @@ resource "aws_security_group" "database" {
   }
 }
 
+// crea la base de datos en RDS
 resource "aws_db_instance" "pedidos360" {
   identifier             = "${var.project_name}-db"
+  // usamos MySQL
   engine                 = "mysql"
   instance_class         = "db.t3.micro"
   allocated_storage      = 20
@@ -36,9 +39,11 @@ resource "aws_db_instance" "pedidos360" {
   db_name                = "pedidos360"
   username               = "adminuser"
   password               = random_password.db.result
+  // puerto que usa MySQL
   port                   = 3306
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [aws_security_group.database.id]
+  // la base no queda abierta directamente a internet
   publicly_accessible    = false
   skip_final_snapshot    = true
   deletion_protection    = false

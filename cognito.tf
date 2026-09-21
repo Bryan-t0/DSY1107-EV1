@@ -1,3 +1,4 @@
+// donde se manejan los usuarios de Cognito
 resource "aws_cognito_user_pool" "pool" {
   name = "dsy1107-grupoxx-001"
 
@@ -17,6 +18,7 @@ resource "aws_cognito_user_pool" "pool" {
   }
 }
 
+// dominio que usa la pantalla de login de Cognito
 resource "aws_cognito_user_pool_domain" "hosted_ui" {
   domain       = "dsy1107-grupoxx-001"
   user_pool_id = aws_cognito_user_pool.pool.id
@@ -24,20 +26,26 @@ resource "aws_cognito_user_pool_domain" "hosted_ui" {
   # 1 = Hosted UI clásica
   managed_login_version = 1
 }
+// registra nuestro frontend como aplicacion en Cognito
 resource "aws_cognito_user_pool_client" "spa" {
   name         = "spa-react"
   user_pool_id = aws_cognito_user_pool.pool.id
 
+  // React no usa secret porque funciona desde el navegador
   generate_secret = false
 
   allowed_oauth_flows_user_pool_client = true
+  // usamos el flujo Authorization Code
   allowed_oauth_flows                   = ["code"]
 
   supported_identity_providers = ["COGNITO"]
 
+  // permisos que pide nuestra aplicacion
   allowed_oauth_scopes = ["openid", "email", "profile"]
 
+  // donde Cognito devuelve al usuario despues del login
   callback_urls = ["http://localhost:5173/"]
+  // donde vuelve el usuario despues de cerrar sesion
   logout_urls   = ["http://localhost:5173/"]
 
   explicit_auth_flows = [

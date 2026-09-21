@@ -45,9 +45,13 @@ public class SecurityConfig {
       .csrf(csrf -> csrf.disable())
       .cors(cors -> cors.configurationSource(corsConfigurationSource()))
       .authorizeHttpRequests(auth -> auth
+        // dejo pasar OPTIONS porque el navegador lo usa para CORS
         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+        // esta ruta queda publica para revisar si el backend esta vivo
         .requestMatchers("/actuator/health").permitAll()
+        // esta ruta necesita ser APROBADOR
         .requestMatchers("/datos").hasRole("APROBADOR")
+        // para entrar a pedidos el usuario tiene que estar autenticado
         .requestMatchers("/pedidos/**").authenticated()
         .anyRequest().authenticated()
       )
@@ -59,17 +63,21 @@ public class SecurityConfig {
   }
 
   @Bean
+  // configuracion de CORS del backend
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
+    // frontend que tiene permiso para llamar al backend
     configuration.setAllowedOrigins(
       List.of("http://localhost:5173")
     );
 
+    // metodos que puede usar el frontend
     configuration.setAllowedMethods(
       List.of("GET", "POST", "PUT", "OPTIONS")
     );
 
+    // headers que permitimos desde el frontend
     configuration.setAllowedHeaders(
       List.of("Authorization", "Content-Type")
     );
@@ -93,12 +101,14 @@ public class SecurityConfig {
       Collection<GrantedAuthority> authorities =
         new ArrayList<>(scopeConverter.convert(jwt));
 
+      // saco los grupos que vienen dentro del token de Cognito
       List<String> groups =
         jwt.getClaimAsStringList("cognito:groups");
 
       if (groups != null) {
         groups.forEach(group ->
           authorities.add(
+            // convierto el grupo de Cognito a un rol que entiende Spring
             new SimpleGrantedAuthority("ROLE_" + group)
           )
         );
@@ -113,15 +123,18 @@ public class SecurityConfig {
     NimbusJwtDecoder decoder =
       (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(issuer);
 
+    // revisa que el token venga del issuer correcto
     OAuth2TokenValidator<Jwt> defaults =
       JwtValidators.createDefaultWithIssuer(issuer);
 
+    // revisa que el token pertenezca a nuestro cliente
     OAuth2TokenValidator<Jwt> clientValidator =
       new JwtClaimValidator<>(
         "client_id",
         claim -> clientId.equals(String.valueOf(claim))
       );
 
+    // si viene aud, reviso que incluya nuestra aplicacion
     OAuth2TokenValidator<Jwt> audienceValidator =
       new JwtClaimValidator<List<String>>(
         "aud",
