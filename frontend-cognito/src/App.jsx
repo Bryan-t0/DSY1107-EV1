@@ -18,6 +18,7 @@ function base64UrlEncode(buffer) {
     .replace(/=+$/, "");
 }
 
+
 async function generateCodeChallenge(codeVerifier) {
   const encoder = new TextEncoder();
   const data = encoder.encode(codeVerifier);
@@ -59,7 +60,7 @@ function App() {
       exchangeCodeForToken(code);
     }
   }, []);
-
+  //aqui empieza el login
   const login = async () => {
     const codeVerifier = generateCodeVerifier();
 
@@ -113,10 +114,14 @@ function App() {
 
         return;
       }
-
+     
+      //Guarda el token para entrar a la API
       sessionStorage.setItem("access_token", data.access_token);
+     
+      // Guarda el token con la información de identidad del usuario
       sessionStorage.setItem("id_token", data.id_token);
-
+      
+      
       setAccessToken(data.access_token);
 
       setMessage("JWT obtenido correctamente.");
@@ -138,8 +143,8 @@ function App() {
       setApiData(null);
 
       const response = await fetch(API_URL, {
-        method: "GET",
-
+        method: "GET",  
+        //Envío el access token para demostrar que ya inicié sesión
         headers: {
           Authorization: accessToken,
         },
