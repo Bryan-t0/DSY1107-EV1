@@ -25,6 +25,9 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableMethodSecurity
@@ -40,6 +43,7 @@ public class SecurityConfig {
   SecurityFilterChain security(HttpSecurity http) throws Exception {
     http
       .csrf(csrf -> csrf.disable())
+      .cors(cors -> cors.configurationSource(corsConfigurationSource()))
       .authorizeHttpRequests(auth -> auth
         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
         .requestMatchers("/actuator/health").permitAll()
@@ -52,6 +56,32 @@ public class SecurityConfig {
       );
 
     return http.build();
+  }
+
+  @Bean
+  CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+
+    configuration.setAllowedOrigins(
+      List.of("http://localhost:5173")
+    );
+
+    configuration.setAllowedMethods(
+      List.of("GET", "POST", "PUT", "OPTIONS")
+    );
+
+    configuration.setAllowedHeaders(
+      List.of("Authorization", "Content-Type")
+    );
+
+    configuration.setAllowCredentials(false);
+
+    UrlBasedCorsConfigurationSource source =
+      new UrlBasedCorsConfigurationSource();
+
+    source.registerCorsConfiguration("/**", configuration);
+
+    return source;
   }
 
   @Bean
