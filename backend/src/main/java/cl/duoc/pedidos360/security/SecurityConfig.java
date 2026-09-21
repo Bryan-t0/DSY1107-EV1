@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,6 +41,7 @@ public class SecurityConfig {
     http
       .csrf(csrf -> csrf.disable())
       .authorizeHttpRequests(auth -> auth
+        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
         .requestMatchers("/actuator/health").permitAll()
         .requestMatchers("/datos").hasRole("APROBADOR")
         .requestMatchers("/pedidos/**").authenticated()
@@ -54,15 +56,21 @@ public class SecurityConfig {
 
   @Bean
   Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
-    JwtGrantedAuthoritiesConverter scopeConverter = new JwtGrantedAuthoritiesConverter();
+    JwtGrantedAuthoritiesConverter scopeConverter =
+      new JwtGrantedAuthoritiesConverter();
 
     return jwt -> {
-      Collection<GrantedAuthority> authorities = new ArrayList<>(scopeConverter.convert(jwt));
-      List<String> groups = jwt.getClaimAsStringList("cognito:groups");
+      Collection<GrantedAuthority> authorities =
+        new ArrayList<>(scopeConverter.convert(jwt));
+
+      List<String> groups =
+        jwt.getClaimAsStringList("cognito:groups");
 
       if (groups != null) {
         groups.forEach(group ->
-          authorities.add(new SimpleGrantedAuthority("ROLE_" + group))
+          authorities.add(
+            new SimpleGrantedAuthority("ROLE_" + group)
+          )
         );
       }
 
@@ -72,18 +80,23 @@ public class SecurityConfig {
 
   @Bean
   JwtDecoder jwtDecoder() {
-    NimbusJwtDecoder decoder = (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(issuer);
+    NimbusJwtDecoder decoder =
+      (NimbusJwtDecoder) JwtDecoders.fromIssuerLocation(issuer);
 
     OAuth2TokenValidator<Jwt> defaults =
       JwtValidators.createDefaultWithIssuer(issuer);
 
     OAuth2TokenValidator<Jwt> clientValidator =
-      new JwtClaimValidator<>("client_id",
-        claim -> clientId.equals(String.valueOf(claim)));
+      new JwtClaimValidator<>(
+        "client_id",
+        claim -> clientId.equals(String.valueOf(claim))
+      );
 
     OAuth2TokenValidator<Jwt> audienceValidator =
-      new JwtClaimValidator<List<String>>("aud",
-        aud -> aud == null || aud.isEmpty() || aud.contains(clientId));
+      new JwtClaimValidator<List<String>>(
+        "aud",
+        aud -> aud == null || aud.isEmpty() || aud.contains(clientId)
+      );
 
     decoder.setJwtValidator(
       new DelegatingOAuth2TokenValidator<>(
