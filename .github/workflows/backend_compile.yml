@@ -1,20 +1,78 @@
 name: Backend Compile
+
 on:
   push:
-    branches: [main]
-    paths: ['backend/**', '.github/workflows/backend_compile.yml']
+    branches:
+      - main
+      - develop
+      - feature/**
+    paths:
+      - 'backend/**'
+      - 'notifications-service/**'
+      - 'rabbitmq-admin/**'
+      - '.github/workflows/backend_compile.yml'
+
   pull_request:
-    paths: ['backend/**', '.github/workflows/backend_compile.yml']
+    paths:
+      - 'backend/**'
+      - 'notifications-service/**'
+      - 'rabbitmq-admin/**'
+      - '.github/workflows/backend_compile.yml'
+
 jobs:
-  build:
+  backend:
+    name: Backend principal
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
           cache: maven
-      - name: Compilar y probar
+
+      - name: Compilar y ejecutar pruebas
         working-directory: backend
-        run: mvn --batch-mode --no-transfer-progress test package
+        run: mvn --batch-mode --no-transfer-progress clean test
+
+  notifications:
+    name: Notifications Service
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Compilar y ejecutar pruebas
+        working-directory: notifications-service
+        run: mvn --batch-mode --no-transfer-progress clean test
+
+  rabbitmq-admin:
+    name: RabbitMQ Admin
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Compilar y ejecutar pruebas
+        working-directory: rabbitmq-admin
+        run: mvn --batch-mode --no-transfer-progress clean test

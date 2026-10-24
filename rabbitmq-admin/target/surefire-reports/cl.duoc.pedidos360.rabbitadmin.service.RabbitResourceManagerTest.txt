@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: cl.duoc.pedidos360.rabbitadmin.service.RabbitResourceManagerTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.962 s -- in cl.duoc.pedidos360.rabbitadmin.service.RabbitResourceManagerTest

@@ -1,21 +1,39 @@
-name: Frontend Compile
+name: Frontend Angular Compile
+
 on:
   push:
-    branches: [main]
-    paths: ['frontend/**', '.github/workflows/frontend_compile.yml']
+    branches:
+      - main
+      - develop
+      - feature/**
+    paths:
+      - 'frontend-angular/**'
+      - '.github/workflows/frontend_compile.yml'
+
   pull_request:
-    paths: ['frontend/**', '.github/workflows/frontend_compile.yml']
+    paths:
+      - 'frontend-angular/**'
+      - '.github/workflows/frontend_compile.yml'
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Descargar repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend-angular/package-lock.json
+
       - name: Instalar dependencias
-        working-directory: frontend
-        run: npm install
-      - name: Compilar React
-        working-directory: frontend
+        working-directory: frontend-angular
+        run: npm ci
+
+      - name: Compilar Angular
+        working-directory: frontend-angular
         run: npm run build
