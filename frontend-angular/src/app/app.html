@@ -1,0 +1,344 @@
+<div class="page">
+
+  <header class="topbar">
+
+    <div>
+      <p class="eyebrow">
+        GESTIÓN DE PEDIDOS
+      </p>
+
+      <h1>
+        Pedidos360
+      </h1>
+
+      <p class="subtitle">
+        Registro, seguimiento y aprobación de pedidos
+      </p>
+    </div>
+
+    <div class="actions">
+
+      <ng-container *ngIf="modoLocal">
+
+        <span class="role">
+          MODO LOCAL · {{ rolLocal }}
+        </span>
+
+        <button
+          class="secondary"
+          (click)="cambiarRol()">
+
+          Cambiar a
+          {{
+            rolLocal === 'SOLICITANTE'
+              ? 'APROBADOR'
+              : 'SOLICITANTE'
+          }}
+
+        </button>
+
+      </ng-container>
+
+      <ng-container *ngIf="!modoLocal">
+
+        <button
+          *ngIf="!autenticado"
+          (click)="login()">
+
+          Iniciar sesión
+
+        </button>
+
+        <ng-container *ngIf="autenticado">
+
+          <span class="role">
+
+            {{
+              esAprobador
+                ? 'APROBADOR'
+                : esSolicitante
+                  ? 'SOLICITANTE'
+                  : 'USUARIO'
+            }}
+
+          </span>
+
+          <button
+            class="secondary"
+            (click)="logout()">
+
+            Cerrar sesión
+
+          </button>
+
+        </ng-container>
+
+      </ng-container>
+
+    </div>
+
+  </header>
+
+  <p
+    *ngIf="mensaje"
+    class="success">
+
+    {{ mensaje }}
+
+  </p>
+
+  <p
+    *ngIf="error"
+    class="error">
+
+    {{ error }}
+
+  </p>
+
+  <main *ngIf="autenticado">
+
+    <section class="grid">
+
+      <div
+        class="card"
+        *ngIf="esSolicitante">
+
+        <h2>
+          Nuevo pedido
+        </h2>
+
+        <label>
+          Descripción
+        </label>
+
+        <textarea
+          [(ngModel)]="descripcion"
+          rows="4"
+          placeholder="Ej: Compra de 5 notebooks para oficina">
+        </textarea>
+
+        <button
+          (click)="crearPedido()">
+
+          Crear pedido
+
+        </button>
+
+      </div>
+
+      <div class="card summary">
+
+        <h2>
+          Resumen
+        </h2>
+
+        <div class="summary-number">
+          {{ pedidos.length }}
+        </div>
+
+        <p>
+          Pedidos registrados
+        </p>
+
+        <p>
+          <strong>Rol:</strong>
+          {{
+            esAprobador
+              ? 'APROBADOR'
+              : esSolicitante
+                ? 'SOLICITANTE'
+                : 'USUARIO'
+          }}
+        </p>
+
+        <button
+          class="secondary"
+          (click)="cargarPedidos()">
+
+          Actualizar
+
+        </button>
+
+      </div>
+
+    </section>
+
+    <section class="card">
+
+      <div class="section-head">
+
+        <h2>
+          Pedidos
+        </h2>
+
+        <button
+          class="secondary"
+          (click)="cargarPedidos()">
+
+          Recargar
+
+        </button>
+
+      </div>
+
+      <p
+        *ngIf="pedidos.length === 0"
+        class="empty">
+
+        No hay pedidos registrados.
+
+      </p>
+
+      <div
+        class="table-wrap"
+        *ngIf="pedidos.length > 0">
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>ID</th>
+              <th>Descripción</th>
+              <th>Estado</th>
+              <th>Comentario</th>
+              <th>Acciones</th>
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            <tr
+              *ngFor="let pedido of pedidos">
+
+              <td>
+                #{{ pedido.id }}
+              </td>
+
+              <td>
+                {{ pedido.descripcion }}
+              </td>
+
+              <td>
+
+                <span
+                  class="badge"
+                  [ngClass]="pedido.estado.toLowerCase()">
+
+                  {{ pedido.estado }}
+
+                </span>
+
+              </td>
+
+              <td>
+                {{ pedido.comentario || '-' }}
+              </td>
+
+              <td class="row-actions">
+
+                <ng-container
+                  *ngIf="
+                    esSolicitante &&
+                    pedido.estado === 'PENDIENTE'
+                  ">
+
+                  <button
+                    class="secondary"
+                    (click)="editar(pedido)">
+
+                    Editar
+
+                  </button>
+
+                  <button
+                    class="danger"
+                    (click)="eliminar(pedido)">
+
+                    Eliminar
+
+                  </button>
+
+                </ng-container>
+
+                <ng-container
+                  *ngIf="
+                    esAprobador &&
+                    pedido.estado === 'PENDIENTE'
+                  ">
+
+                  <button
+                    (click)="aprobar(pedido)">
+
+                    Aprobar
+
+                  </button>
+
+                  <button
+                    class="danger"
+                    (click)="rechazar(pedido)">
+
+                    Rechazar
+
+                  </button>
+
+                </ng-container>
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+    <section
+      class="card"
+      *ngIf="esAprobador">
+
+      <h2>
+        Comentario del aprobador
+      </h2>
+
+      <textarea
+        [(ngModel)]="comentario"
+        rows="3"
+        placeholder="Escribe un comentario para aprobar o rechazar">
+      </textarea>
+
+      <p class="hint">
+        El comentario es obligatorio al rechazar un pedido.
+      </p>
+
+    </section>
+
+  </main>
+
+  <section
+    class="card login-card"
+    *ngIf="!autenticado">
+
+    <h2>
+      Acceso al sistema
+    </h2>
+
+    <p>
+      Inicia sesión mediante Amazon Cognito
+      para acceder a Pedidos360.
+    </p>
+
+    <button
+      (click)="login()">
+
+      Iniciar sesión con Cognito
+
+    </button>
+
+  </section>
+
+</div>
