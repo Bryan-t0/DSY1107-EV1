@@ -26,8 +26,8 @@ export class App implements OnInit {
 
   apiUrl = 'http://localhost:8080';
 
-  // Modo local para probar el sistema sin Cognito
-  modoLocal = true;
+  // Modo real de autenticación con Cognito
+  modoLocal = false;
 
   rolLocal: 'SOLICITANTE' | 'APROBADOR' =
     'SOLICITANTE';
@@ -39,7 +39,7 @@ export class App implements OnInit {
     '6t8gda2gsqh5h61jk5rgclc55s';
 
   redirectUri =
-    'http://localhost:4200/';
+    'http://localhost:5173/';
 
   accessToken =
     sessionStorage.getItem('access_token') || '';
