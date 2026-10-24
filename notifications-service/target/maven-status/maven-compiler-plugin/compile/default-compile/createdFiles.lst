@@ -1,4 +1,0 @@
-cl\duoc\pedidos360\notifications\listener\PedidoEventListener.class
-cl\duoc\pedidos360\notifications\config\RabbitMessagingConfig.class
-cl\duoc\pedidos360\notifications\config\RabbitListenerConfig.class
-cl\duoc\pedidos360\notifications\NotificationsApplication.class
