@@ -1,0 +1,4 @@
+cl\duoc\pedidos360\rabbitadmin\RabbitAdminApplication.class
+cl\duoc\pedidos360\rabbitadmin\config\RabbitAdminConfig.class
+cl\duoc\pedidos360\rabbitadmin\service\RabbitResourceManager.class
+cl\duoc\pedidos360\rabbitadmin\controller\RabbitMQController.class

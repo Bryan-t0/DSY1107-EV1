@@ -1,0 +1,41 @@
+services:
+
+  rabbitmq-1:
+    image: rabbitmq:3.12-management-alpine
+    container_name: rabbitmq-1
+    hostname: rabbitmq-1
+    restart: unless-stopped
+
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+      RABBITMQ_ERLANG_COOKIE: pedidos360-cookie
+
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+    volumes:
+      - rabbitmq1-data:/var/lib/rabbitmq
+
+  rabbitmq-2:
+    image: rabbitmq:3.12-management-alpine
+    container_name: rabbitmq-2
+    hostname: rabbitmq-2
+    restart: unless-stopped
+
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin123
+      RABBITMQ_ERLANG_COOKIE: pedidos360-cookie
+
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+
+    volumes:
+      - rabbitmq2-data:/var/lib/rabbitmq
+
+volumes:
+  rabbitmq1-data:
+  rabbitmq2-data:
