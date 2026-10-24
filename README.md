@@ -1,49 +1,54 @@
-# DSY1107 · Evaluación Parcial 1 · Pedidos360
+# DSY1107 · Evaluación 2 · Pedidos360
 
-Solución Cloud Native con React, AWS Cognito (OIDC Authorization Code + PKCE), API Gateway con JWT Authorizer, backend Spring Boot protegido como Resource Server, contenedor Docker en ECR/ECS Fargate y frontend en AWS Amplify.
+Proyecto Cloud Native desarrollado con Angular, Spring Boot, MySQL, Amazon Cognito y RabbitMQ.
 
-## Estructura
-- `frontend/`: React + Vite, login/logout, PKCE, refresh token, lectura de claims y consumo del API con `Authorization: Bearer`.
-- `backend/`: Spring Boot 3 / Java 21, endpoint `GET /datos`, validación de firma, issuer, expiración y `client_id`/audience.
-- `terraform/`: Cognito, ECR, ECS Fargate, API Gateway JWT y Amplify.
-- `.github/workflows/`: 4 pipelines obligatorios (compile/deploy frontend y backend).
+## Componentes
 
-## Despliegue de infraestructura
-```bash
-cd terraform
-terraform init
-terraform validate
-terraform plan
-terraform apply
-terraform output
-```
+- `frontend-angular`: frontend Angular con autenticación Cognito.
+- `backend`: API principal de pedidos.
+- `notifications-service`: consumidor RabbitMQ con ACK, reintentos, NACK y DLQ.
+- `rabbitmq-admin`: administración de colas, exchanges y bindings.
+- `terraform`: infraestructura AWS.
 
-## Variables GitHub Actions
-Crear en **Settings → Secrets and variables → Actions → Variables**:
-`AWS_REGION`, `COGNITO_DOMAIN`, `COGNITO_CLIENT_ID`, `REDIRECT_URI`, `API_URL`, `ECR_REPO`, `ECS_CLUSTER`, `ECS_SERVICE`, `API_ID`, `INTEGRATION_ID`, `AMPLIFY_APP_ID`, `AMPLIFY_BRANCH`.
+## Roles
 
-Los valores salen de `terraform output`. `REDIRECT_URI` debe coincidir exactamente con la callback de Cognito.
+SOLICITANTE:
+- Crear pedidos.
+- Editar pedidos pendientes.
+- Eliminar pedidos pendientes.
 
-## Secrets GitHub Actions
-Crear `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` y `AWS_SESSION_TOKEN` usando las credenciales temporales del Learner Lab. Deben renovarse cuando expire/reinicie la sesión del laboratorio.
+APROBADOR:
+- Aprobar pedidos.
+- Rechazar pedidos.
+- Agregar comentarios.
 
-## Desarrollo local
-Frontend:
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Backend (requiere valores Cognito reales):
+## RabbitMQ
+
+Se utilizan:
+
+- `pedidos.exchange`
+- `pedidos.events.queue`
+- `pedidos.dlx`
+- `pedidos.dlq`
+
+Los mensajes con error se intentan procesar 3 veces y luego se envían a la DLQ.
+
+## Ejecución
+
+Backend:
+
 ```bash
 cd backend
-COGNITO_ISSUER=https://cognito-idp.us-east-1.amazonaws.com/POOL_ID COGNITO_CLIENT_ID=CLIENT_ID mvn spring-boot:run
-```
+mvn spring-boot:run -Dspring-boot.run.profiles=local
 
-## Flujo de seguridad
-1. React inicia Authorization Code + PKCE contra Cognito.
-2. Cognito entrega access/id/refresh token.
-3. React envía `Authorization: Bearer <access_token>`.
-4. API Gateway valida JWT con Cognito.
-5. Spring Security vuelve a validar firma, issuer, vigencia y client ID.
-6. `/datos` devuelve información solo a usuarios autenticados.
+Frontend:
+cd frontend-angular
+ng serve --port 5173
+
+Notifications:
+cd notifications-service
+mvn spring-boot:run
+
+RabbitMQ Admin:
+cd rabbitmq-admin
+mvn spring-boot:run
