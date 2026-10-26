@@ -9,7 +9,7 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
-
+//clase para usar rabbitadmin
 class RabbitResourceManagerTest {
 
   private RabbitAdmin rabbitAdmin;
