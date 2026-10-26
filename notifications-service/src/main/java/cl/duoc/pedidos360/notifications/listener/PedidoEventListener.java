@@ -19,7 +19,7 @@ public class PedidoEventListener {
       LoggerFactory.getLogger(PedidoEventListener.class);
 
   private static final int MAX_INTENTOS = 3;
-
+//El método está escuchando pedidos.events.queue, por eso este es nuestro consumidor
   @RabbitListener(
       queues = RabbitMessagingConfig.PEDIDOS_QUEUE,
       containerFactory = "rabbitListenerContainerFactory"
