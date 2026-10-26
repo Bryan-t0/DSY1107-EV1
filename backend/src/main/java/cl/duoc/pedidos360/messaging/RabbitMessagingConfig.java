@@ -11,8 +11,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMessagingConfig {
 
-  public static final String PEDIDOS_EXCHANGE = "pedidos.exchange";
-  public static final String PEDIDOS_QUEUE = "pedidos.events.queue";
+  public static final String PEDIDOS_EXCHANGE = "pedidos.exchange"; //exchange principal
+  public static final String PEDIDOS_QUEUE = "pedidos.events.queue"; // cola principal
   public static final String PEDIDOS_ROUTING_KEY = "pedidos.event";
 
   public static final String PEDIDOS_DLX = "pedidos.dlx";
@@ -34,7 +34,7 @@ public class RabbitMessagingConfig {
   }
 
   @Bean
-  public Binding pedidosBinding() {
+  public Binding pedidosBinding() { //binding conecta exchange con la cola
     return BindingBuilder
       .bind(pedidosQueue())
       .to(pedidosExchange())
