@@ -22,6 +22,7 @@ public class PedidoEventListener {
 //El método está escuchando pedidos.events.queue, por eso este es nuestro consumidor
   @RabbitListener(
       queues = RabbitMessagingConfig.PEDIDOS_QUEUE,
+      // queues cola principal
       containerFactory = "rabbitListenerContainerFactory"
   )
   public void recibir(
