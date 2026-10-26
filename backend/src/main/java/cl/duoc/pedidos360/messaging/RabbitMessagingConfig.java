@@ -40,7 +40,7 @@ public class RabbitMessagingConfig {
       .to(pedidosExchange())
       .with(PEDIDOS_ROUTING_KEY);
   }
-
+//////////////////////////////////////////////////DQL//////////////////////////////////////////////////////////
   @Bean
   public DirectExchange pedidosDeadLetterExchange() {
     return new DirectExchange(PEDIDOS_DLX, true, false);
