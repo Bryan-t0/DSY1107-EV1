@@ -15,9 +15,9 @@ public class RabbitMessagingConfig {
   public static final String PEDIDOS_QUEUE = "pedidos.events.queue"; // cola principal
   public static final String PEDIDOS_ROUTING_KEY = "pedidos.event"; //routing key, para ayudar a rabbitmq a direccionar las colas
 
-  public static final String PEDIDOS_DLX = "pedidos.dlx";
-  public static final String PEDIDOS_DLQ = "pedidos.dlq";
-  public static final String PEDIDOS_DLQ_ROUTING_KEY = "pedidos.error";
+  public static final String PEDIDOS_DLX = "pedidos.dlx"; //dead letter exchange
+  public static final String PEDIDOS_DLQ = "pedidos.dlq";// dead letter queue
+  public static final String PEDIDOS_DLQ_ROUTING_KEY = "pedidos.error"; //routing key
 
   @Bean
   public DirectExchange pedidosExchange() {
