@@ -13,7 +13,7 @@ public class RabbitMessagingConfig {
 
   public static final String PEDIDOS_EXCHANGE = "pedidos.exchange"; //exchange principal
   public static final String PEDIDOS_QUEUE = "pedidos.events.queue"; // cola principal
-  public static final String PEDIDOS_ROUTING_KEY = "pedidos.event";
+  public static final String PEDIDOS_ROUTING_KEY = "pedidos.event"; //routing key, para ayudar a rabbitmq a direccionar las colas
 
   public static final String PEDIDOS_DLX = "pedidos.dlx";
   public static final String PEDIDOS_DLQ = "pedidos.dlq";
