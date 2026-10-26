@@ -46,7 +46,7 @@ public class PedidoEventListener {
         );
 
         procesarMensaje(mensaje);
-
+        // ACK
         channel.basicAck(
             deliveryTag,
             false
@@ -78,7 +78,7 @@ public class PedidoEventListener {
         MAX_INTENTOS,
         mensaje
     );
-
+    // NACK
     channel.basicNack(
         deliveryTag,
         false,
