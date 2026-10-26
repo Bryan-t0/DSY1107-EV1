@@ -6,7 +6,7 @@ import cl.duoc.pedidos360.rabbitadmin.service.RabbitResourceManager;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+//Para crear y eliminar recursos de RabbitMQ como queues, exchanges y bindings
 @RestController
 @RequestMapping("/api/rabbitmq")
 public class RabbitMQController {
